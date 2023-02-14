@@ -1,0 +1,34 @@
+{
+
+    "Bot":{
+        "profile":{
+            "app_id":"",
+            "app_secret":""
+        },
+        "bot_api_token":""
+    },
+
+    "WebHook":{
+        "port": 6666,
+        "route": "/"
+    },
+
+    "Api":[
+        {
+            "api_token": "",
+            "owner": "",
+            "available": true
+            
+        },
+        {
+            "api_token": "",
+            "owner": "",
+            "available": true
+        },
+        {
+            "api_token": "",
+            "owner": "",
+            "available": true
+        }
+    ]
+}

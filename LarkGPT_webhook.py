@@ -38,7 +38,8 @@ class Seat:
                 .get("choices")[0]
                 .text
             )
-        except:
+        except Exception as e:
+            print(e.args)
             try:
                 response = (
                 openai.Completion.create(

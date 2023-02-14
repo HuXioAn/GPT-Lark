@@ -51,10 +51,10 @@ class Seat:
 
 
 def handle_request(seat, message):
-    print("asking ai")
+    #print("asking ai")
     # Get the response from OpenAI's GPT-3 API
     response = seat.requestGpt(message)
-    print("got msg from openai:", response)
+    #print("got msg from openai:", response)
 
     # Send the response back to the user
     seat.sendBackUser(response)
@@ -68,7 +68,7 @@ async def listen_for_webhook(request):
     # print("coming!!!!!")
     if request.content_type == "application/json":
         message = await request.json()  # 提取消息内容
-        print(message)
+        #print(message)
         try:
             if (
                 "header" in message
@@ -145,7 +145,7 @@ if __name__ == "__main__":
         AppProfile = config["Bot"]["profile"]
         openaiKeyList=[]
         for apiDict in config["Api"]:
-            if apiDict["api_token"] is not None and ~apiDict["api_token"].isspace() and apiDict["available"] == True:
+            if apiDict["api_token"] is not None and len(apiDict["api_token"]) > 10 and apiDict["available"] == True:
                 openaiKeyList.append(apiDict["api_token"])
 
     except:

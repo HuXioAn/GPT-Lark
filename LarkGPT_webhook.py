@@ -40,22 +40,8 @@ class Seat:
             )
         except Exception as e:
             print(e.args)
-            try:
-                response = (
-                openai.Completion.create(
-                    engine=self.engie,
-                    prompt=promote,
-                    max_tokens=self.maxToken,
-                    n=1,
-                    stop=None,
-                    temperature=0.3,
-                )
-                .get("choices")[0]
-                .text
-            )
-            except:
-                self.lock = 0
-                return "[!]Sorry, Problems with OpenAI service, Please try again."
+            self.lock = 0
+            return "[!]Sorry, Problems with OpenAI service, Please try again."
 
         self.lock = 0
         return response
@@ -163,8 +149,10 @@ if __name__ == "__main__":
         for apiDict in config["Api"]:
             if apiDict.get("api_token"," ").isspace() is not True and apiDict["available"] == True:
                 openaiKeyList.append(apiDict["api_token"])
+                print("[*]Token added: ",apiDict["api_token"][0:10],"Ower:",apiDict["owner"])
 
     except:
+        print("[!]No config file: ",configPath,"found.")
         port = 6666
         route = "/"
         LARK_API_TOKEN = ""
@@ -177,6 +165,8 @@ if __name__ == "__main__":
     seats = []
     for key in openaiKeyList:
         seats.append(Seat(key))
+
+    print("[*] ",seats.numOfSeat," seats loaded.")
 
     app = web.Application()
     app.add_routes([web.post(route, listen_for_webhook)])

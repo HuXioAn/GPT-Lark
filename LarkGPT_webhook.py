@@ -166,7 +166,7 @@ if __name__ == "__main__":
     for key in openaiKeyList:
         seats.append(Seat(key))
 
-    print("[*] ",seats.numOfSeat," seats loaded.")
+    print("[*] ",Seat.numOfSeat," seats loaded.")
 
     app = web.Application()
     app.add_routes([web.post(route, listen_for_webhook)])

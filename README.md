@@ -24,7 +24,7 @@
         "bot_api_token":""      #Verification Token
 }
 ```
-前两者可以在`凭证与基础信息`中找到，`Verification Token`在`时间订阅`中。
+前两者可以在`凭证与基础信息`中找到，`Verification Token`在`事件订阅`中。
 
 ### 服务器信息
 

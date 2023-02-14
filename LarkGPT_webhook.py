@@ -161,7 +161,7 @@ if __name__ == "__main__":
         AppProfile = config["Bot"]["profile"]
         openaiKeyList=[]
         for apiDict in config["Api"]:
-            if apiDict["api_token"] is not None and len(apiDict["api_token"]) > 10 and apiDict["available"] == True:
+            if apiDict.get("api_token"," ").isspace() is not True and apiDict["available"] == True:
                 openaiKeyList.append(apiDict["api_token"])
 
     except:

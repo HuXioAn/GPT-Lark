@@ -25,19 +25,36 @@ class Seat:
             return "请等待..."
         self.lock = 1
         openai.api_key = self.api
-
-        response = (
-            openai.Completion.create(
-                engine=self.engie,
-                prompt=promote,
-                max_tokens=self.maxToken,
-                n=1,
-                stop=None,
-                temperature=0.3,
+        try:
+            response = (
+                openai.Completion.create(
+                    engine=self.engie,
+                    prompt=promote,
+                    max_tokens=self.maxToken,
+                    n=1,
+                    stop=None,
+                    temperature=0.3,
+                )
+                .get("choices")[0]
+                .text
             )
-            .get("choices")[0]
-            .text
-        )
+        except:
+            try:
+                response = (
+                openai.Completion.create(
+                    engine=self.engie,
+                    prompt=promote,
+                    max_tokens=self.maxToken,
+                    n=1,
+                    stop=None,
+                    temperature=0.3,
+                )
+                .get("choices")[0]
+                .text
+            )
+            except:
+                self.lock = 0
+                return "[!]Sorry, Problems with OpenAI service, Please try again."
 
         self.lock = 0
         return response

@@ -34,7 +34,7 @@ class Seat:
                     n=1,
                     stop=None,
                     temperature=0.3,
-                    request_timeout=15,
+                    request_timeout=30,
                 )
                 .get("choices")[0]
                 .text

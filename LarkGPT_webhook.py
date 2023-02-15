@@ -57,7 +57,15 @@ def handle_request(seatList, message):
     #将分配seat的功能放到新线程这里
 
     open_id = message["event"]["sender"]["sender_id"]["open_id"]
-    content = json.loads(message["event"]["message"]["content"])["text"]   
+    content:str = json.loads(message["event"]["message"]["content"])["text"]
+
+    #识别token添加
+    if(content.startswith("sk-") and len(content)<100):
+        tempSeat = Seat(content)
+        
+
+
+
     seat = None          
     #老用户                      
     for seatIt in seatList:

@@ -53,7 +53,27 @@ class Seat:
 
 
 
-def handle_request(seat, message):
+def handle_request(seatList, message):
+    #将分配seat的功能放到新线程这里
+
+    open_id = message["event"]["sender"]["sender_id"]["open_id"]
+    content = json.loads(message["event"]["message"]["content"])["text"]   
+    seat = None          
+    #老用户                      
+    for seatIt in seatList:
+        if seat.user == open_id:#此用户有先前遗留的对话
+            seat = seatIt
+    #新用户
+    if seat is None:
+        seat = seats[Seat.numOfSeat-1]
+        seat.user = open_id
+        #向新用户发送宣传信息
+        AD_STR = '欢迎使用LarkGPT - 基于OpenAI GPT\n \
+        本项目开源：https://github.com/HuXioAn/GPT-Lark 欢迎🌟\n    \
+        如果想将你的API token加入到本机器人，可以直接发送token，感谢支持！
+        '
+        seat.sendBackUser(AD_STR)
+    
     #print("asking ai")
     # Get the response from OpenAI's GPT-3 API
     response = seat.requestGpt(message)
@@ -77,17 +97,8 @@ async def listen_for_webhook(request):
                 "header" in message
                 and message["header"].get("event_type", None) == "im.message.receive_v1"
             ):
-                # print("asking")
-                open_id = message["event"]["sender"]["sender_id"]["open_id"]
-                content = json.loads(message["event"]["message"]["content"])["text"]                                   
-                for seat in seats:
-                    if seat.user == open_id:#此用户有先前遗留的对话
-                        Thread(target=handle_request, args=(seat, content)).start()
-                        return web.Response()
-
-                #新用户
-                seats[Seat.numOfSeat-1].user = open_id
-                Thread(target=handle_request, args=(seats[Seat.numOfSeat-1], content)).start()
+                
+                Thread(target=handle_request, args=(seats, message)).start()
                 return web.Response(status=200)
                 
             else:

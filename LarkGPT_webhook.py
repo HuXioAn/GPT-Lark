@@ -91,18 +91,21 @@ async def listen_for_webhook(request):
                 return web.Response(status=200)
                 
             else:
-                type = message["type"]  # 确定消息类型
-                if type == "url_verification":
-                    # print("verification!!!!")
-                    token = message["token"]
-                    if token == LARK_API_TOKEN:
-                        challenge = {
-                            "challenge": message["challenge"]}  # 提取消息内容
-                        res = json.dumps(challenge)
-                        return web.Response(text=res, content_type="application/json")
+                return challengeReply(message)
         except Exception as e:
             return web.Response(status=200)
 
+
+def challengeReply(message):
+    type = message["type"]  # 确定消息类型
+    if type == "url_verification":
+        # print("verification!!!!")
+        token = message["token"]
+        if token == LARK_API_TOKEN:
+            challenge = {
+                "challenge": message["challenge"]}  # 提取消息内容
+            res = json.dumps(challenge)
+            return web.Response(text=res, content_type="application/json")
 
 
 

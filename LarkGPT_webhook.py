@@ -92,17 +92,18 @@ def handle_request(seatList, message):
     #识别token添加
     if(content.startswith("sk-") and len(content)<60 and len(content)>40):
         tempSeat = Seat(content)
+        tempSeat.user = open_id
         #测试tempSeat可用性
         if tempSeat.requestGpt("hello").startswith("[!]Sorry,") is not True:
             #如果可用,获取用户user_id,加入队列，更新config.json
             user_id = message["event"]["sender"]["sender_id"]["user_id"]
             #print("user_id:",user_id,"token:",content)
             if Seat.addApi(content,user_id) == 0:
-                seat.sendBackUser("[*]您的token：{0}已经加入服务，感谢您的支持！",content)
+                tempSeat.sendBackUser("[*]您的token：{0}已经加入服务，感谢您的支持！",content)
                 seatList.append(tempSeat)
                 return 0
             else:
-                seat.sendBackUser("[!]很抱歉，您的token：{0}暂时无法加入服务，感谢您的支持",content)
+                tempSeat.sendBackUser("[!]很抱歉，您的token：{0}暂时无法加入服务，感谢您的支持",content)
                 return -1
 
         else:

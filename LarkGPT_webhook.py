@@ -9,7 +9,6 @@ import requests
 
 class Seat:
     numOfSeat = 0
-    config = {}
     configPath = ''
 
     def __init__(self, api):
@@ -61,7 +60,22 @@ class Seat:
             "available": true
         }
 
-        
+        try:
+            with open(Seat.configPath) as jsonFile:
+                config = json.load(jsonFile)
+                config["Api"].append(api)
+                json.dump(config, jsonFile, ensure_ascii=False)
+            
+            return 0
+        except:
+            return -1
+            
+
+
+
+
+
+
 
 
 
@@ -81,9 +95,14 @@ def handle_request(seatList: List(Seat), message):
         if tempSeat.requestGpt("hello").startswith("[!]Sorry,") is not True:
             #如果可用,获取用户user_id,加入队列，更新config.json
             user_id = message["event"]["sender"]["sender_id"]["user_id"]
-            Seat.addApi(content,user_id)
-            seatList.append(tempSeat)
-            seat.sendBackUser("[*]您的token：{0}已经加入服务，感谢您的支持！",content)
+            if Seat.addApi(content,user_id) == 0:
+                seat.sendBackUser("[*]您的token：{0}已经加入服务，感谢您的支持！",content)
+                seatList.append(tempSeat)
+                return 0
+            else:
+                seat.sendBackUser("[!]很抱歉，您的token：{0}暂时无法加入服务，感谢您的支持",content)
+                return -1
+
         else:
             #如果不可用
             del tempSeat
@@ -184,6 +203,7 @@ if __name__ == "__main__":
 
     #读取配置文件
     configPath = "./api_config.json"
+    Seat.configPath = configPath
     try:
         with open(configPath) as jsonFile:
             config = json.load(jsonFile)

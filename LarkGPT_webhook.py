@@ -83,7 +83,7 @@ class Seat:
 
 
 
-def handle_request(seatList: List(Seat), message):
+def handle_request(seatList, message):
     #将分配seat的功能放到新线程这里
 
     open_id = message["event"]["sender"]["sender_id"]["open_id"]

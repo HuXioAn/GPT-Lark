@@ -99,17 +99,17 @@ def handle_request(seatList, message):
             user_id = message["event"]["sender"]["sender_id"]["user_id"]
             #print("user_id:",user_id,"token:",content)
             if Seat.addApi(content,user_id) == 0:
-                tempSeat.sendBackUser("[*]您的token：{0}已经加入服务，感谢您的支持！",content)
+                tempSeat.sendBackUser("[*]您的token：{0}已经加入服务，感谢您的支持！".format(content))
                 seatList.append(tempSeat)
                 return 0
             else:
-                tempSeat.sendBackUser("[!]很抱歉，您的token：{0}暂时无法加入服务，感谢您的支持",content)
+                tempSeat.sendBackUser("[!]很抱歉，您的token：{0}暂时无法加入服务，感谢您的支持".format(content))
                 return -1
 
         else:
             #如果不可用
+            tempSeat.sendBackUser("[!]很抱歉，您的token：{0}暂时无法加入服务，感谢您的支持".format(content))
             del tempSeat
-            seat.sendBackUser("[!]很抱歉，您的token：{0}暂时无法加入服务，感谢您的支持",content)
             return -1
         
 

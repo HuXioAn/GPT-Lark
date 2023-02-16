@@ -61,14 +61,17 @@ class Seat:
         }
 
         try:
-            with open(Seat.configPath) as jsonFile:
+            with open(Seat.configPath,'r') as jsonFile:
                 config = json.load(jsonFile)
                 config["Api"].append(api)
+            
+            with open(Seat.configPath,'w') as jsonFile:
                 json.dump(config, jsonFile, ensure_ascii=False)
             
             print("[*]Token added: ",token[0:10],"Ower:",user_id)
             return 0
-        except:
+        except Exception as e:
+            print(e.args)
             return -1
             
 

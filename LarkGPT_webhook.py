@@ -131,7 +131,7 @@ def handle_request(seatList, message):
     
     #print("asking ai")
     # Get the response from OpenAI's GPT-3 API
-    response = seat.requestGpt(message)
+    response = seat.requestGpt(content)
     #print("got msg from openai:", response)
 
     # Send the response back to the user

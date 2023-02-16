@@ -108,7 +108,7 @@ def handle_request(seatList, message):
 
         else:
             #如果不可用
-            tempSeat.sendBackUser("[!]很抱歉，您的token：{0}暂时无法加入服务，感谢您的支持".format(content))
+            tempSeat.sendBackUser("[!]很抱歉，您的token：{0}由于网络原因暂时无法加入服务，感谢您的支持".format(content))
             del tempSeat
             return -1
         

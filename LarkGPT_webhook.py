@@ -9,6 +9,8 @@ import requests
 
 class Seat:
     numOfSeat = 0
+    config = {}
+    configPath = ''
 
     def __init__(self, api):
         self.api = api
@@ -51,9 +53,22 @@ class Seat:
         if (self.user is not None):
             send(self.user, res)
 
+    @classmethod
+    def addApi(token,user_id):
+        api = {
+            "api_token": token,
+            "owner": user_id,
+            "available": true
+        }
+
+        
 
 
-def handle_request(seatList, message):
+
+
+
+
+def handle_request(seatList: List(Seat), message):
     #将分配seat的功能放到新线程这里
 
     open_id = message["event"]["sender"]["sender_id"]["open_id"]
@@ -63,7 +78,17 @@ def handle_request(seatList, message):
     if(content.startswith("sk-") and len(content)<60 and len(content)>40):
         tempSeat = Seat(content)
         #测试tempSeat可用性
-        
+        if tempSeat.requestGpt("hello").startswith("[!]Sorry,") is not True:
+            #如果可用,获取用户user_id,加入队列，更新config.json
+            user_id = message["event"]["sender"]["sender_id"]["user_id"]
+            Seat.addApi(content,user_id)
+            seatList.append(tempSeat)
+            seat.sendBackUser("[*]您的token：{0}已经加入服务，感谢您的支持！",content)
+        else:
+            #如果不可用
+            del tempSeat
+            seat.sendBackUser("[!]很抱歉，您的token：{0}暂时无法加入服务，感谢您的支持",content)
+            return -1
         
 
 

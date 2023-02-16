@@ -57,7 +57,7 @@ class Seat:
         api = {
             "api_token": token,
             "owner": user_id,
-            "available": true
+            "available": True
         }
 
         try:

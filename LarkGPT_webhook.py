@@ -66,6 +66,7 @@ class Seat:
                 config["Api"].append(api)
                 json.dump(config, jsonFile, ensure_ascii=False)
             
+            print("[*]Token added: ",token[0:10],"Ower:",user_id)
             return 0
         except:
             return -1

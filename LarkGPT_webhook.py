@@ -53,7 +53,7 @@ class Seat:
             send(self.user, res)
 
     @classmethod
-    def addApi(token:str,user_id:str):
+    def addApi(self,token:str,user_id:str):
         api = {
             "api_token": token,
             "owner": user_id,
@@ -96,7 +96,7 @@ def handle_request(seatList, message):
         if tempSeat.requestGpt("hello").startswith("[!]Sorry,") is not True:
             #如果可用,获取用户user_id,加入队列，更新config.json
             user_id = message["event"]["sender"]["sender_id"]["user_id"]
-            print("user_id:",user_id,"token:",content)
+            #print("user_id:",user_id,"token:",content)
             if Seat.addApi(content,user_id) == 0:
                 seat.sendBackUser("[*]您的token：{0}已经加入服务，感谢您的支持！",content)
                 seatList.append(tempSeat)

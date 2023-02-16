@@ -116,7 +116,7 @@ def handle_request(seatList, message):
     seat = None          
     #老用户                      
     for seatIt in seatList:
-        if seat.user == open_id:#此用户有先前遗留的对话
+        if seatIt.user == open_id:#此用户有先前遗留的对话
             seat = seatIt
     #新用户
     if seat is None:

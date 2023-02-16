@@ -60,8 +60,10 @@ def handle_request(seatList, message):
     content:str = json.loads(message["event"]["message"]["content"])["text"]
 
     #识别token添加
-    if(content.startswith("sk-") and len(content)<100):
+    if(content.startswith("sk-") and len(content)<60 and len(content)>40):
         tempSeat = Seat(content)
+        #测试tempSeat可用性
+        
         
 
 
@@ -73,7 +75,7 @@ def handle_request(seatList, message):
             seat = seatIt
     #新用户
     if seat is None:
-        seat = seats[Seat.numOfSeat-1]
+        seat = seatList[len(seatList)-1]
         seat.user = open_id
         #向新用户发送宣传信息
         AD_STR = '欢迎使用LarkGPT - 基于OpenAI GPT\n \
@@ -186,7 +188,7 @@ if __name__ == "__main__":
     for key in openaiKeyList:
         seats.append(Seat(key))
 
-    print("[*] ",Seat.numOfSeat," seats loaded.")
+    print("[*] ",len(seats)," seats loaded.")
 
     app = web.Application()
     app.add_routes([web.post(route, listen_for_webhook)])

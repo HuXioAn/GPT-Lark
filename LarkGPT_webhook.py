@@ -228,7 +228,7 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
     #过期清楚先前对话
     if (time.time()-user.lastResponseTimeStamp)>User.userExpireTime: user.cleanData()
 
-    if content is "/exit":
+    if content == "/exit":
         user.cleanData()
         seat.sendBackUser("[*]Conversation cleaned.")
         return 0

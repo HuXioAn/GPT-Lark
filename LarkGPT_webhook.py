@@ -15,7 +15,7 @@ class Seat:
 
     def __init__(self, api):
         self.api = api
-        self.maxToken = 1024
+        self.maxToken = 2048
         self.engie = "gpt-3.5-turbo"
         self.lock = 0
 
@@ -80,9 +80,9 @@ class Seat:
 #Every instance of User class represents a user, carries the user's dialog
 class User:
 
-    questionLengthLimit = 100
+    questionLengthLimit = 300
     previousDialogLimit = 5
-    previousDialogLengthLimit = 500
+    previousDialogLengthLimit = 800
 
     userExpireTime = 1800 #in sec
 

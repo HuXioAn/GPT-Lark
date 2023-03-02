@@ -2,6 +2,9 @@
 
 将OpenAI GPT接入飞书机器人，不依赖机器人框架，单文件实现的多线程飞书机器人与WebHook消息订阅。
 
+2023/3/2:支持Turbo-api连续对话，使用`/exit`清除对话历史
+----
+
 ## 使用
 0. 在飞书开放平台申请机器人应用，订阅消息相关事件。
 
@@ -70,8 +73,8 @@
 
 ### TODO
 - [x] API Token自动收集
-- [ ] Turbo API and conversation
+- [x] Turbo API and conversation
 - [ ] 自动鉴别失效Token
 - [ ] 多个机器人实例
-- [ ] 连续对话与特殊性格
+- [ ] 特殊性格
 

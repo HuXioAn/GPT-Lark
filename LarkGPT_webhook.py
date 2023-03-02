@@ -220,9 +220,10 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
         
         if seat == None : return -1
         #向新用户发送宣传信息
-        AD_STR = '''欢迎使用LarkGPT - 基于OpenAI ChatGPT 
+        AD_STR = '''欢迎使用LarkGPT - 基于ChatGPT-Turbo
 本项目开源：https://github.com/HuXioAn/GPT-Lark 欢迎🌟    
-如果想将你的API token加入到本机器人，可以直接发送token，感谢支持！'''
+如果想将你的API token加入到本机器人，可以直接发送token，感谢支持！
+目前已支持连续对话，如果想清除历史，请输入[/exit]'''
         seat.sendBackUser(AD_STR)
     
     #过期清楚先前对话

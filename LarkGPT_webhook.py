@@ -171,7 +171,7 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
     if(content.startswith("sk-") and len(content)<60 and len(content)>40):
         tempUser = User(open_id)
         tempSeat = Seat(content)
-        tempSeat.user = tempSeat
+        tempSeat.user = tempUser
         #测试tempSeat可用性
         if tempSeat.requestGpt("hello")[0].startswith("[!]Sorry,") is not True:
             #如果可用,获取用户user_id,加入队列，更新config.json

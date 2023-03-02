@@ -10,7 +10,7 @@
 
 1. 将`api_config_example.json`文件改名为`api_config.json`，并按照示例配置飞书后台信息、服务器信息、GPT API。
 
-2. 使用pip安装依赖 `python3.x -m pip install aiohttp openai`。
+2. 使用pip安装依赖 `python3.x -m pip install aiohttp openai`，**Turbo 要求openai包版本大于等于0.27.0，请注意升级。**
 
 3. 运行 `python3.x ./LarkGPT_webhook.py`。
 

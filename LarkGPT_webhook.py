@@ -6,6 +6,7 @@ from threading import Thread, current_thread
 import json
 import requests
 import datetime
+import time
 
 #Every instance of this class represents an available api loaded in the list
 class Seat:
@@ -83,6 +84,8 @@ class User:
     previousDialogLimit = 5
     previousDialogLengthLimit = 500
 
+    userExpireTime = 1800 #in sec
+
 
     def __init__(self,openId):
         self.openId = openId
@@ -93,6 +96,8 @@ class User:
         self.response = []
 
         self.msg = []
+
+        self.lastResponseTimeStamp = time.time()
         
 
 
@@ -101,7 +106,7 @@ class User:
         if len(newQuestion) > User.questionLengthLimit: 
             return -1
         else:
-            
+
             previousDialogNum = User.previousDialogLimit if len(self.question)>User.previousDialogLimit else len(self.question)
 
             lengthCount = 0
@@ -135,6 +140,8 @@ class User:
         if response != None :
             self.response.append(response)
             self.totalTokenCost += tokenConsumed
+
+            self.lastResponseTimeStamp = time.time()
             return 0
         else:
             return -1
@@ -218,16 +225,21 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
 如果想将你的API token加入到本机器人，可以直接发送token，感谢支持！'''
         seat.sendBackUser(AD_STR)
     
+    #过期清楚先前对话
+    if (time.time()-user.lastResponseTimeStamp)>User.userExpireTime: user.cleanData()
 
+    if content is "/exit":
+        user.cleanData()
+        seat.sendBackUser("[*]Conversation cleaned.")
+        return 0
+    else:
+        (response,tokenConsumed) = seat.requestGpt(content)
+        if tokenConsumed > 0:
+            seat.user.updateResponse(response, tokenConsumed)
+        seat.sendBackUser(response)
 
-
-    (response,tokenConsumed) = seat.requestGpt(content)
-    if tokenConsumed > 0:
-        seat.user.updateResponse(response, tokenConsumed)
-    seat.sendBackUser(response)
-
-    #调整顺序
-    seats.insert(0,seats.pop(seats.index(seat)))
+        #调整顺序
+        seats.insert(0,seats.pop(seats.index(seat)))
 
 
 

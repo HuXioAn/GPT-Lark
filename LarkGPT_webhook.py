@@ -84,13 +84,11 @@ class User:
     previousDialogLengthLimit = 500
 
 
-    systemMsg = "You are a helpful assistant. Today is {}".format(datetime.date.today())
-
     def __init__(self,openId):
         self.openId = openId
         self.totalTokenCost = 0 
 
-        self.systemMsg = "You are a helpful assistant. Today is {}".format(datetime.date.today())
+        self.systemMsg = None#"You are a helpful assistant. Today is {}".format(datetime.date.today())
         self.question = []
         self.response = []
 
@@ -118,7 +116,8 @@ class User:
                     previousDialogNum = -1*previousDialogNum-1
 
             self.msg = []
-            self.msg.append({"role": "system", "content": self.systemMsg})
+            if self.systemMsg != None:
+                self.msg.append({"role": "system", "content": self.systemMsg})
             for i in range(-1, previousDialogNum, -1):
                 #organize the msg struct
                 self.msg.append({"role": "user", "content": self.question[i]})

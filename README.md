@@ -70,6 +70,7 @@
 
 ### TODO
 - [x] API Token自动收集
+- [ ] Turbo API and conversation
 - [ ] 自动鉴别失效Token
 - [ ] 多个机器人实例
 - [ ] 连续对话与特殊性格

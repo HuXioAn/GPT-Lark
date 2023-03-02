@@ -13,8 +13,8 @@ class Seat:
 
     def __init__(self, api):
         self.api = api
-        self.maxToken = 256
-        self.engie = "text-davinci-003"
+        self.maxToken = 1024
+        self.engie = "gpt-3.5-turbo"
         self.lock = 0
 
         self.user = None
@@ -128,7 +128,7 @@ def handle_request(seatList, message):
         seat = seatList[len(seatList)-1]
         seat.user = open_id
         #向新用户发送宣传信息
-        AD_STR = '''欢迎使用LarkGPT - 基于OpenAI GPT 
+        AD_STR = '''欢迎使用LarkGPT - 基于OpenAI ChatGPT 
 本项目开源：https://github.com/HuXioAn/GPT-Lark 欢迎🌟    
 如果想将你的API token加入到本机器人，可以直接发送token，感谢支持！'''
     

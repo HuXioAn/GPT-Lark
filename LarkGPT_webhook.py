@@ -206,6 +206,7 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
     #新用户
     if user is None:
         user = User(open_id)#create new user instance
+        userList.append(user)
         for i in range(len(seatList)-1,-1,-1):
             if seatList[i].lock == 0 : 
                 seat = seatList[i]

@@ -198,7 +198,7 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
     for userIt in userList:
         if userIt.openId == open_id:#此用户有先前遗留的对话
             user = userIt
-            for i in range(len(seatList),-1,-1):
+            for i in range(len(seatList)-1,-1,-1):
                 if seatList[i].lock == 0 : 
                     seat = seatList[i]
                     seat.user = user

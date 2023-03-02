@@ -100,7 +100,7 @@ class User:
 
     def constructMsg(self,newQuestion):
         # add the new question to the list, generate the msg for query api
-        if len(newQuestion) > questionLimit: 
+        if len(newQuestion) > questionLengthLimit: 
             return -1
         else:
             

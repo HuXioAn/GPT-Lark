@@ -5,10 +5,11 @@ from threading import Thread, current_thread
 # import web
 import json
 import requests
+import datetime
 
-
+#Every instance of this class represents an available api loaded in the list
 class Seat:
-    numOfSeat = 0
+
     configPath = ''
 
     def __init__(self, api):
@@ -17,40 +18,40 @@ class Seat:
         self.engie = "gpt-3.5-turbo"
         self.lock = 0
 
-        self.user = None
+        self.user : User = None
 
-        Seat.numOfSeat += 1
 
-    def requestGpt(self, promote):
+
+    def requestGpt(self, promote)->(str,int):
         if self.lock == 1:
-            return "请等待..."
+            return ("请等待...",-1)
         self.lock = 1
         openai.api_key = self.api
         try:
-            response = (
-                openai.Completion.create(
-                    engine=self.engie,
-                    prompt=promote,
-                    max_tokens=self.maxToken,
-                    n=1,
-                    stop=None,
-                    temperature=0.3,
-                    request_timeout=30,
+            if 0 != self.user.constructMsg(promote):
+                raise Exception("[!]Unable to construst Message, promote:",promote)
+            completion = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=self.user.msg
                 )
-                .get("choices")[0]
-                .text
-            )
+            response = completion['choices'][0]['message']['content']
+            tokenConsumed = completion['usage']["total_tokens"]
         except Exception as e:
             print(e.args)
             self.lock = 0
-            return "[!]Sorry, Problems with OpenAI service, Please try again."
+            return ("[!]Sorry, Problems with OpenAI service, Please try again.",-1)
 
         self.lock = 0
-        return response
+        return (response,tokenConsumed)
+
+
+
 
     def sendBackUser(self, res):
-        if (self.user is not None):
-            send(self.user, res)
+        if (self.user.openId is not None):
+            send(self.user.openId, res)
+
+
 
     @classmethod
     def addApi(self,token:str,user_id:str):
@@ -75,6 +76,75 @@ class Seat:
             return -1
             
 
+#Every instance of User class represents a user, carries the user's dialog
+class User:
+
+    questionLengthLimit = 100
+    previousDialogLimit = 5
+    previousDialogLengthLimit = 500
+
+
+    systemMsg = "You are a helpful assistant. Today is {}".format(datetime.date.today())
+
+    def __init__(self,openId):
+        self.openId = openId
+        self.totalTokenCost = 0 
+
+        self.systemMsg = "You are a helpful assistant. Today is {}".format(datetime.date.today())
+        self.question = []
+        self.response = []
+
+        self.msg = []
+        
+
+
+    def constructMsg(self,newQuestion):
+        # add the new question to the list, generate the msg for query api
+        if len(newQuestion) > questionLimit: 
+            return -1
+        else:
+            
+            previousDialogNum = previousDialogLimit if len(self.question)>previousDialogLimit else len(self.question)
+
+            lengthCount = 0
+            for i in range(-1,-1*previousDialogNum-1,-1):
+                lengthCount += len(self.question[i]);
+                lengthCount += len(self.response[i]);
+
+                if lengthCount > previousDialogLengthLimit: 
+                    previousDialogNum = i
+                    break
+                else :
+                    previousDialogNum = -1*previousDialogNum-1
+
+            self.msg = []
+            self.msg.append({"role": "system", "content": self.systemMsg})
+            for i in range(-1, previousDialogNum, -1):
+                #organize the msg struct
+                self.msg.append({"role": "user", "content": self.question[i]})
+                self.msg.append({"role": "assistant", "content": self.response[i]})
+
+            self.msg.append({"role": "user", "content": newQuestion})
+            self.question.append(newQuestion)
+
+
+            return 0
+
+
+
+    def updateResponse(self, response:str, tokenConsumed):
+        if response != None :
+            self.response.append(response)
+            self.totalTokenCost += tokenConsumed
+            return 0
+        else:
+            return -1
+
+
+    def cleanData(self):
+        self.question = []
+        self.response = []
+        self.msg = []
 
 
 
@@ -84,62 +154,76 @@ class Seat:
 
 
 
-
-
-def handle_request(seatList, message):
+def handle_request(seatList:list[Seat], userList:list[User], message):
     #将分配seat的功能放到新线程这里
 
     open_id = message["event"]["sender"]["sender_id"]["open_id"]
     content:str = json.loads(message["event"]["message"]["content"])["text"]
 
-    #识别token添加
+
+        #识别token添加
     if(content.startswith("sk-") and len(content)<60 and len(content)>40):
+        tempUser = User(open_id)
         tempSeat = Seat(content)
-        tempSeat.user = open_id
+        tempSeat.user = tempSeat
         #测试tempSeat可用性
-        if tempSeat.requestGpt("hello").startswith("[!]Sorry,") is not True:
+        if tempSeat.requestGpt("hello")[0].startswith("[!]Sorry,") is not True:
             #如果可用,获取用户user_id,加入队列，更新config.json
             user_id = message["event"]["sender"]["sender_id"]["user_id"]
             #print("user_id:",user_id,"token:",content)
             if Seat.addApi(content,user_id) == 0:
                 tempSeat.sendBackUser("[*]您的token：{0}已经加入服务，感谢您的支持！".format(content))
                 seatList.append(tempSeat)
+                del tempUser
                 return 0
             else:
                 tempSeat.sendBackUser("[!]很抱歉，您的token：{0}暂时无法加入服务，感谢您的支持".format(content))
+                del tempUser
+                del tempSeat
                 return -1
 
         else:
             #如果不可用
             tempSeat.sendBackUser("[!]很抱歉，您的token：{0}由于网络原因暂时无法加入服务，感谢您的支持".format(content))
+            del tempUser
             del tempSeat
             return -1
-        
 
 
 
-    seat = None          
+
+    user = None    
+    seat = None      
     #老用户                      
-    for seatIt in seatList:
-        if seatIt.user == open_id:#此用户有先前遗留的对话
-            seat = seatIt
+    for userIt in userList:
+        if userIt.openId == open_id:#此用户有先前遗留的对话
+            user = userIt
+            for i in range(len(seatList),-1,-1):
+                if seatList[i].lock == 0 : 
+                    seat = seatList[i]
+                    seat.user = user
+            if seat == None : return -1
     #新用户
-    if seat is None:
-        seat = seatList[len(seatList)-1]
-        seat.user = open_id
+    if user is None:
+        user = User(open_id)#create new user instance
+        for i in range(len(seatList),-1,-1):
+            if seatList[i].lock == 0 : 
+                seat = seatList[i]
+                seat.user = user
+        
+        if seat == None : return -1
         #向新用户发送宣传信息
         AD_STR = '''欢迎使用LarkGPT - 基于OpenAI ChatGPT 
 本项目开源：https://github.com/HuXioAn/GPT-Lark 欢迎🌟    
 如果想将你的API token加入到本机器人，可以直接发送token，感谢支持！'''
-    
         seat.sendBackUser(AD_STR)
     
-    #print("asking ai")
-    # Get the response from OpenAI's GPT-3 API
-    response = seat.requestGpt(content)
-    #print("got msg from openai:", response)
 
-    # Send the response back to the user
+
+
+    (response,tokenConsumed) = seat.requestGpt(content)
+    if tokenConsumed > 0:
+        seat.user.updateResponse(response, tokenConsumed)
     seat.sendBackUser(response)
 
     #调整顺序
@@ -158,7 +242,7 @@ async def listen_for_webhook(request):
                 and message["header"].get("event_type", None) == "im.message.receive_v1"
             ):
                 
-                Thread(target=handle_request, args=(seats, message)).start()
+                Thread(target=handle_request, args=(seats, users, message)).start()
                 return web.Response(status=200)
                 
             else:
@@ -234,7 +318,7 @@ if __name__ == "__main__":
             "app_id": "",
             "app_secret": "",
         }  # 变更机器人时更改
-
+    users = []
     seats = []
     for key in openaiKeyList:
         seats.append(Seat(key))

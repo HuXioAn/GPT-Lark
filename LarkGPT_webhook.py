@@ -100,18 +100,18 @@ class User:
 
     def constructMsg(self,newQuestion):
         # add the new question to the list, generate the msg for query api
-        if len(newQuestion) > questionLengthLimit: 
+        if len(newQuestion) > User.questionLengthLimit: 
             return -1
         else:
             
-            previousDialogNum = previousDialogLimit if len(self.question)>previousDialogLimit else len(self.question)
+            previousDialogNum = User.previousDialogLimit if len(self.question)>User.previousDialogLimit else len(self.question)
 
             lengthCount = 0
             for i in range(-1,-1*previousDialogNum-1,-1):
                 lengthCount += len(self.question[i]);
                 lengthCount += len(self.response[i]);
 
-                if lengthCount > previousDialogLengthLimit: 
+                if lengthCount > User.previousDialogLengthLimit: 
                     previousDialogNum = i
                     break
                 else :

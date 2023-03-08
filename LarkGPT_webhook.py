@@ -35,12 +35,16 @@ class Seat:
                 model="gpt-3.5-turbo",
                 messages=self.user.msg
                 )
-            response = completion['choices'][0]['message']['content']
-            tokenConsumed = completion['usage']["total_tokens"]
+            try:
+                response = completion['choices'][0]['message']['content']
+                tokenConsumed = completion['usage']["total_tokens"]
+            except Exception as e:
+                print(str(response))
+                raise Exception("[!]Error extracting the completion.")
         except Exception as e:
             print(e.args)
             self.lock = 0
-            return ("[!]Sorry, Problems with OpenAI service, Please try again.",-1)
+            return ("[!]Sorry, Problems with OpenAI service, Please try again.\n"+e.args,-1)
 
         self.lock = 0
         return (response,tokenConsumed)
@@ -162,10 +166,13 @@ class User:
 
 def handle_request(seatList:list[Seat], userList:list[User], message):
     #将分配seat的功能放到新线程这里
-
-    open_id = message["event"]["sender"]["sender_id"]["open_id"]
-    content:str = json.loads(message["event"]["message"]["content"])["text"]
-
+    try:
+        open_id = message["event"]["sender"]["sender_id"]["open_id"]
+        content:str = json.loads(message["event"]["message"]["content"])["text"]
+    except Exception as e:
+        print("[!]Error parsing incoming message,"+e.args)
+        print("[!]Message:\n",str(message))
+        return -1
 
         #识别token添加
     if(content.startswith("sk-") and len(content)<60 and len(content)>40):

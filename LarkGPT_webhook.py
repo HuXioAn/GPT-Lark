@@ -166,10 +166,13 @@ class User:
 
 def handle_request(seatList:list[Seat], userList:list[User], message):
     #将分配seat的功能放到新线程这里
-
-    open_id = message["event"]["sender"]["sender_id"]["open_id"]
-    content:str = json.loads(message["event"]["message"]["content"])["text"]
-
+    try:
+        open_id = message["event"]["sender"]["sender_id"]["open_id"]
+        content:str = json.loads(message["event"]["message"]["content"])["text"]
+    except Exception as e:
+        print("[!]Error parsing incoming message,"+e.args)
+        print("[!]Message:\n",str(message))
+        return -1
 
         #识别token添加
     if(content.startswith("sk-") and len(content)<60 and len(content)>40):

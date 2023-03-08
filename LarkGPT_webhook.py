@@ -35,12 +35,16 @@ class Seat:
                 model="gpt-3.5-turbo",
                 messages=self.user.msg
                 )
-            response = completion['choices'][0]['message']['content']
-            tokenConsumed = completion['usage']["total_tokens"]
+            try:
+                response = completion['choices'][0]['message']['content']
+                tokenConsumed = completion['usage']["total_tokens"]
+            except Exception as e:
+                print(str(response))
+                raise Exception("[!]Error extracting the completion.")
         except Exception as e:
             print(e.args)
             self.lock = 0
-            return ("[!]Sorry, Problems with OpenAI service, Please try again.",-1)
+            return ("[!]Sorry, Problems with OpenAI service, Please try again.\n"+e.args,-1)
 
         self.lock = 0
         return (response,tokenConsumed)

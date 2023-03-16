@@ -5,6 +5,8 @@ from threading import Thread, current_thread
 # import web
 import json
 import requests
+from requests_toolbelt import MultipartEncoder
+
 import datetime
 import time
 
@@ -53,10 +55,82 @@ class Seat:
 
 
 
-
+    #纯文本
     def sendBackUser(self, res):
         if (self.user.openId is not None):
             send(self.user.openId, res)
+
+    #多媒体消息
+    def sendBackUser(self,resText:str, mediaList:list):
+        if (self.user.openId is not None):
+            url = "https://open.feishu.cn/open-apis/im/v1/messages"
+            params = {"receive_id_type": "open_id"}
+
+            hyperText = {
+                'zh_cn' : {
+                    'content' : [
+                        
+                    ]
+                }
+            }
+            resIndex = 0
+            for item in mediaList:
+                if item[1] == 1:
+                    #img
+                    hyperText["zh_cn"]['content'].append(
+                        {
+                            "tag": "text",
+					        "text": resText[resIndex:item[0]]
+                        }
+                    )
+
+                    resIndex = item[0]
+
+                    hyperText["zh_cn"]['content'].append(
+                        {
+                            "tag": "img",
+					        "image_key": item[2]
+                        }
+                    )
+            #剩余文本
+            hyperText["zh_cn"]['content'].append(
+                        {
+                            "tag": "text",
+					        "text": resText[resIndex:]
+                        }
+                    )
+
+
+            req = {
+                "receive_id": open_id,  # chat id
+                "msg_type": "post",
+                "content": json.dumps(hyperText),
+            }
+            payload = json.dumps(req)
+            headers = {
+                "Authorization": "Bearer " + get_tenant(AppProfile),  # your access token
+                "Content-Type": "application/json",
+            }
+            response = requests.request(
+                "POST", url, params=params, headers=headers, data=payload
+            )
+
+    def uploadImage(self,imgPath:str):
+        url = "https://open.feishu.cn/open-apis/im/v1/images"
+        form = {'image_type': 'message',
+            'image': (open(imgPath, 'rb'))}  # 需要替换具体的path 
+        multi_form = MultipartEncoder(form)
+        headers = {
+            'Authorization': "Bearer " + get_tenant(AppProfile),  ## 获取tenant_access_token, 需要替换为实际的token
+        }
+        headers['Content-Type'] = multi_form.content_type
+        response = requests.request("POST", url, headers=headers, data=multi_form)
+        if response['code'] != 0:
+            raise Exception(f"Image upload bad response: {response['code']} {response['msg']}")
+
+        else:
+            return response['data']['image_key']
+
 
 
 
@@ -84,9 +158,11 @@ class Seat:
             
     @classmethod
     def responseRender(self,oriResponse:str,latexRender:bool):
+        imgList:list[(int,int,str)] = None
         if latexRender == True:
+            
             #latex提取
-            for lines in oriResponse.splitlines():
+            for lines in oriResponse.splitlines(keepends=False):
                 lines = lines.strip()
                 if lines.startswith('$') and lines.endswith('$'):
                     try:
@@ -97,19 +173,34 @@ class Seat:
                         ax.get_yaxis().set_visible(False)
                         ax.set_xticks([])
                         ax.set_yticks([])
+                        
                         if lines.startswith('$$') and lines.endswith('$$'):
                             plt.text(0.5, 0.5, lines[1:-1], fontsize=32, verticalalignment='center', horizontalalignment='center')
-                        else:
+                        else:   
                             plt.text(0.5, 0.5, lines, fontsize=32, verticalalignment='center', horizontalalignment='center')
-                        plt.savefig(f'./imgGen/tempLatex_{str(time.time())[-5:]}_{lines[-7:-2]}.png')
 
-                        #插入图片分割标志
-                        
+                        filename = f'./imgGen/tempLatex_{str(time.time())[-5:]}_{lines[-7:-2]}.png'
+                        plt.savefig(filename)
+
                     except Exception as e:
                         print('[!]Unable to render Latex:'+lines+'\n Exception:'+str(e.args))
+                        continue
+
+                    try:
+                        #上传图片
+                        imgKey = self.uploadImage(filename)
+
+                    except Exception as e:
+                        print('[!]Unable to upload image:'+filename+'\n Exception:'+str(e.args))
+                        continue
+
+                    #插入图片分割标志
+                    latexIndex = oriResponse.find(lines)
+                    if latexIndex != -1:
+                        imgList.append((latexIndex,1,imgKey))
 
 
-
+        return imgList
 
 
 
@@ -274,12 +365,15 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
         return 0
     else:
         (response,tokenConsumed) = seat.requestGpt(content)
+        isHyper = None
         if tokenConsumed > 0:
             seat.user.updateResponse(response, tokenConsumed)
             #response处理器
-            Seat.responseRender(response,True)
-
-        seat.sendBackUser(response)
+            mediaList = Seat.responseRender(response,True)
+        if mediaList is None:
+            seat.sendBackUser(response)
+        else:
+            seat.sendBackUser(response,mediaList)
 
         #调整顺序
         seats.insert(0,seats.pop(seats.index(seat)))

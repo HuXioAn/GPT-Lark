@@ -156,7 +156,7 @@ class Seat:
             print(e.args)
             return -1
             
-    @classmethod
+
     def responseRender(self,oriResponse:str,latexRender:bool):
         imgList:list[(int,int,str)] = None
         if latexRender == True:
@@ -369,7 +369,7 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
         if tokenConsumed > 0:
             seat.user.updateResponse(response, tokenConsumed)
             #response处理器
-            mediaList = Seat.responseRender(response,True)
+            mediaList = seat.responseRender(response,True)
         if mediaList is None:
             seat.sendBackUser(response)
         else:

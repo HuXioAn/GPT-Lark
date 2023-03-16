@@ -8,6 +8,8 @@ import requests
 import datetime
 import time
 
+import matplotlib.pyplot as plt
+
 #Every instance of this class represents an available api loaded in the list
 class Seat:
 
@@ -80,6 +82,27 @@ class Seat:
             print(e.args)
             return -1
             
+    @classmethod
+    def responseRender(self,oriResponse:str,latexRender:bool):
+        if latexRender == True:
+            #latex提取
+            for lines in oriResponse.splitlines():
+                lines = lines.strip()
+                if lines.startswith('$$') and lines.endswith('$$'):
+                    #处理latex字符串
+                    fig = plt.figure()
+                    ax = fig.add_axes([0, 0, 1, 1])
+                    ax.get_xaxis().set_visible(False)
+                    ax.get_yaxis().set_visible(False)
+                    ax.set_xticks([])
+                    ax.set_yticks([])
+                    plt.text(0.5, 0.5, lines, fontsize=16, verticalalignment='center', horizontalalignment='center')
+                    plt.savefig(r'./imgGen/tempLatex.png')
+
+
+
+
+
 
 #Every instance of User class represents a user, carries the user's dialog
 class User:
@@ -244,6 +267,9 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
         (response,tokenConsumed) = seat.requestGpt(content)
         if tokenConsumed > 0:
             seat.user.updateResponse(response, tokenConsumed)
+            #response处理器
+            Seat.responseRender(response,True)
+
         seat.sendBackUser(response)
 
         #调整顺序

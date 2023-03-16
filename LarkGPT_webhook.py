@@ -89,18 +89,24 @@ class Seat:
             for lines in oriResponse.splitlines():
                 lines = lines.strip()
                 if lines.startswith('$') and lines.endswith('$'):
-                    #处理latex字符串
-                    fig = plt.figure(figsize=(10,3))
-                    ax = fig.add_axes([0, 0, 1, 1])
-                    ax.get_xaxis().set_visible(False)
-                    ax.get_yaxis().set_visible(False)
-                    ax.set_xticks([])
-                    ax.set_yticks([])
-                    if lines.startswith('$$') and lines.endswith('$$'):
-                        plt.text(0.5, 0.5, lines[1:-1], fontsize=32, verticalalignment='center', horizontalalignment='center')
-                    else:
-                        plt.text(0.5, 0.5, lines, fontsize=32, verticalalignment='center', horizontalalignment='center')
-                    plt.savefig(f'./imgGen/tempLatex_{str(time.time())[-5:]}_{lines[-7:-2]}.png')
+                    try:
+                        #处理latex字符串
+                        fig = plt.figure(figsize=(16,3))
+                        ax = fig.add_axes([0, 0, 1, 1])
+                        ax.get_xaxis().set_visible(False)
+                        ax.get_yaxis().set_visible(False)
+                        ax.set_xticks([])
+                        ax.set_yticks([])
+                        if lines.startswith('$$') and lines.endswith('$$'):
+                            plt.text(0.5, 0.5, lines[1:-1], fontsize=32, verticalalignment='center', horizontalalignment='center')
+                        else:
+                            plt.text(0.5, 0.5, lines, fontsize=32, verticalalignment='center', horizontalalignment='center')
+                        plt.savefig(f'./imgGen/tempLatex_{str(time.time())[-5:]}_{lines[-7:-2]}.png')
+
+                        #插入图片分割标志
+                        
+                    except Exception as e:
+                        print('[!]Unable to render Latex:'+lines+'\n Exception:'+str(e.args))
 
 
 

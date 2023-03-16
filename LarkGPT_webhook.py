@@ -61,7 +61,7 @@ class Seat:
             send(self.user.openId, res)
 
     #多媒体消息
-    def sendBackUser(self,resText:str, mediaList:list):
+    def sendBackUserHyper(self,resText:str, mediaList:list):
         if (self.user.openId is not None):
             url = "https://open.feishu.cn/open-apis/im/v1/messages"
             params = {"receive_id_type": "open_id"}
@@ -373,7 +373,7 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
         if mediaList is None:
             seat.sendBackUser(response)
         else:
-            seat.sendBackUser(response,mediaList)
+            seat.sendBackUserHyper(response,mediaList)
 
         #调整顺序
         seats.insert(0,seats.pop(seats.index(seat)))

@@ -90,13 +90,14 @@ class Seat:
                 lines = lines.strip()
                 if lines.startswith('$$') and lines.endswith('$$'):
                     #处理latex字符串
+
                     fig = plt.figure()
                     ax = fig.add_axes([0, 0, 1, 1])
                     ax.get_xaxis().set_visible(False)
                     ax.get_yaxis().set_visible(False)
                     ax.set_xticks([])
                     ax.set_yticks([])
-                    plt.text(0.5, 0.5, lines, fontsize=16, verticalalignment='center', horizontalalignment='center')
+                    plt.text(0.5, 0.5, lines[1:-1], fontsize=16, verticalalignment='center', horizontalalignment='center')
                     plt.savefig(r'./imgGen/tempLatex.png')
 
 

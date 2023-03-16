@@ -46,7 +46,7 @@ class Seat:
         except Exception as e:
             print(e.args)
             self.lock = 0
-            return ("[!]Sorry, Problems with OpenAI service, Please try again.\n"+e.args,-1)
+            return ("[!]Sorry, Problems with OpenAI service, Please try again.\n"+str(e.args),-1)
 
         self.lock = 0
         return (response,tokenConsumed)
@@ -100,7 +100,7 @@ class Seat:
                         plt.text(0.5, 0.5, lines[1:-1], fontsize=32, verticalalignment='center', horizontalalignment='center')
                     else:
                         plt.text(0.5, 0.5, lines, fontsize=32, verticalalignment='center', horizontalalignment='center')
-                    plt.savefig(f'./imgGen/tempLatex_{str(time.time())}.png')
+                    plt.savefig(f'./imgGen/tempLatex_{str(time.time())[-5:]}_{lines[-7:-2]}.png')
 
 
 

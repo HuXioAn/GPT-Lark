@@ -88,17 +88,19 @@ class Seat:
             #latex提取
             for lines in oriResponse.splitlines():
                 lines = lines.strip()
-                if lines.startswith('$$') and lines.endswith('$$'):
+                if lines.startswith('$') and lines.endswith('$'):
                     #处理latex字符串
-
-                    fig = plt.figure()
+                    fig = plt.figure(figsize=(10,3))
                     ax = fig.add_axes([0, 0, 1, 1])
                     ax.get_xaxis().set_visible(False)
                     ax.get_yaxis().set_visible(False)
                     ax.set_xticks([])
                     ax.set_yticks([])
-                    plt.text(0.5, 0.5, lines[1:-1], fontsize=16, verticalalignment='center', horizontalalignment='center')
-                    plt.savefig(r'./imgGen/tempLatex.png')
+                    if lines.startswith('$$') and lines.endswith('$$'):
+                        plt.text(0.5, 0.5, lines[1:-1], fontsize=32, verticalalignment='center', horizontalalignment='center')
+                    else:
+                        plt.text(0.5, 0.5, lines, fontsize=32, verticalalignment='center', horizontalalignment='center')
+                    plt.savefig(f'./imgGen/tempLatex_{str(time.time())}.png')
 
 
 

@@ -365,7 +365,7 @@ def handle_request(seatList:list[Seat], userList:list[User], message):
         return 0
     else:
         (response,tokenConsumed) = seat.requestGpt(content)
-        isHyper = None
+        mediaList = None
         if tokenConsumed > 0:
             seat.user.updateResponse(response, tokenConsumed)
             #response处理器
